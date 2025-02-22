@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/update_baseline.sh
-# Updates the baseline checksums by calling the baseline_gen.sh script
+# Updates baseline checksums
 
 echo "Updating baseline..."
 bash "$(dirname "$0")/baseline_gen.sh"

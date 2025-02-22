@@ -22,8 +22,16 @@ FIM-LinPy is a lightweight tool for monitoring the integrity of critical files o
 
 ## Getting Started
 
-## Example Usage
-![image](https://github.com/user-attachments/assets/0a575944-2fe8-4beb-9677-9103a5b2930b)
+## Examples
+### FIM-LinPy Web Dashboard
+![image](https://github.com/user-attachments/assets/9a3de443-0e50-4876-9d82-2b500e79287f)
+
+### FIM-LinPy Web Investigation 
+![image](https://github.com/user-attachments/assets/8533308c-5c38-43c1-8303-20a051a45ae3)
+
+### Setup Baseline && Console Check
+![image](https://github.com/user-attachments/assets/7684f078-591a-4b15-91a8-3ddc0cd05aea)
+
 
 ### Prerequisites
 

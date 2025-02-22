@@ -18,7 +18,7 @@ FIM-LinPy is a lightweight tool for monitoring the integrity of critical files o
 - **Automated Baseline Generation:** Quickly generate a secure snapshot of your system's state.
 - **Periodic Integrity Checks:** Verify that your system files remain unaltered.
 - **Easy Integration:** Combine with cron or other scheduling tools for regular monitoring.
-- **Customizable:** Modify target directories, checksum algorithms, and more.
+- **Customisable:** Modify target directories, checksum algorithms, and more.
 
 ## Getting Started
 

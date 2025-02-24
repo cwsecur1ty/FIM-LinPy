@@ -62,6 +62,14 @@ PyGuard combines several functions:
    Navigate to: https://127.0.0.1:11010
 
 # Screenshots
+### Dashboard
+![image](https://github.com/user-attachments/assets/a273522a-d0c4-4014-b480-dd0c63b60f0c)
+### FIM
+![image](https://github.com/user-attachments/assets/2e1aa621-a590-4868-b091-bf471969d110)
+### Vulnerability Page
+![image](https://github.com/user-attachments/assets/e5e718c4-240e-4545-bc32-be3e53eb3e5d)
+### Threat Hunting
+![image](https://github.com/user-attachments/assets/73078ccb-8172-482d-a909-ed1d7625b5b1)
 
 # Future Ideas/Work
 - Email alerts (smtp)

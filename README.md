@@ -1,87 +1,70 @@
-# FIM-LinPy: File Integrity Monitoring for Linux
+# PyGuard: Security Monitoring for Linux
 
-FIM-LinPy is a lightweight tool for monitoring the integrity of critical files on Linux systems. A combination of Bash and Python is used to generate a baseline of file checksums and then verify that files have not been modified or tampered with.
+PyGuard is a security monitoring platform for Linux systems, providing FIM, vulnerability scanning, account monitoring, and threat-hunting capabilities. Built with Python and Flask - it has command-line tools and a web dashboard (main focus) to help maintain the security of Linux env's.
 
 ## Overview
 
-- **Baseline Generation:**  
-  The Bash script (`scripts/baseline_gen.sh`) scans a target directory (e.g., `/etc`) and creates a baseline file (`baseline_checksums.txt`) with SHA-256 checksums for all files.
+PyGuard combines several functions:
 
-- **Integrity Check:**  
-  The Python script (`scripts/integrity_check.py`) reads the baseline file, recalculates current file checksums, and reports any discrepancies (e.g., missing or modified files).
-
-- **Baseline Update:**  
-  The optional Bash script (`scripts/update_baseline.sh`) allows you to update your baseline after you verify that changes are legitimate. 
+- **File Integrity Monitoring (FIM):** Track changes to system files and detect modifications
+- **Vulnerability Scanning:** Identify & track package vulnerabilities
+- **Threat Hunting:** Search for IoC's and query VirusTotal (API key can be inserted on config page)
+- **Account Monitoring:** Monitor accounts and privilege changes
+- **Dashboard:** Get an overview of your system's security & things like CPU load
 
 ## Features
 
-- **Automated Baseline Generation:** Quickly generate a secure snapshot of your system's state.
-- **Periodic Integrity Checks:** Verify that your system files remain unaltered.
-- **Easy Integration:** Combine with cron or other scheduling tools for regular monitoring.
-- **Customisable:** Modify target directories, checksum algorithms, and more.
+### File Integrity Monitoring
+- **Baseline Generation:** Create SHA-256 checksums for files
+- **Change Detection:** Identify modified, added, or deleted files
+- **Investigation:** Investigate changes of files
+- **Approvals:** Approve legitimate changes and update your current baselines
+
+### Vulnerability Management
+- **Package Scanning:** Check installed packages against known vulnerabilities 
+- **Database Integration:** Track scan results over time
+- **Bulk Scanning:** Scan all installed packages at once (**routine scanning coming soon**)
+
+### Threat Hunting
+- **Hash Search:** Search by hash
+- **Path Matching:** Find files by path or query for folder contents
+- **VirusTotal Integration:** Validate file hashes against VirusTotal's database
+- **Malicious Hash Database:** Maintain a local database of known threats (must be manually added)
+
+### Account Monitoring
+- **Account Tracking:** Monitor user accounts and their privileges (need to expand this part)
+- **Shell Access:** Track which users have shell access 
 
 ## Getting Started
 
-## Examples
-### FIM-LinPy Web Dashboard
-![image](https://github.com/user-attachments/assets/9a3de443-0e50-4876-9d82-2b500e79287f)
-
-### FIM-LinPy Web Investigation 
-![image](https://github.com/user-attachments/assets/8533308c-5c38-43c1-8303-20a051a45ae3)
-
-### Setup Baseline && Console Check
-![image](https://github.com/user-attachments/assets/7684f078-591a-4b15-91a8-3ddc0cd05aea)
-
-
 ### Prerequisites
-
-- Linux system with Bash and Python 3 installed.
-- Basic familiarity with the Linux command line.
+- Linux system with Python 3.6+ installed
+- pip (Python package manager)
+- Git (for cloning the repository)
 
 ### Installation
 
 1. **Clone the Repository:**
-
    ```bash
-   git clone https://github.com/yourusername/FIM-LinPy.git
-   cd FIM-LinPy
+   git clone https://github.com/yourusername/PyGuard.git
+   cd PyGuard
    ```
-2. **Permissions:**
-
+2. **Install Dependencies**
    ```bash
-   chmod +x scripts/*.sh
-   chmod +x scripts/integrity_check.py
+   pip install -r requirements.txt
    ```
-## Usage
+3. **Setup & Launch**
+   (In theory the initial launch will set everything up)
+   ```bash
+   python3 pyguard.py
+   ```
+4. **Access Dashboard**
+   Navigate to: https://127.0.0.1:11010
 
-Run the baseline generation script to create the initial checksum baseline (baseline_checksums.txt):
-  ```bash
-  sudo bash scripts/baseline_gen.sh
-  ```
+# Screenshots
 
-Check initial file integrity:
-  ```bash
-  sudo python3 scripts/integrity_check.py
-  ```
-This will generate a report based on any identifiable changes.
-
-To update the baseline:
-  ```bash
-  sudo bash scripts/update_baseline.sh
-  ```
-
-# Automation
-
-Schedule the integrity check using a cron job to run at regular intervals, changing the intervals based on requirements.
-  ```bash
-  0 0 * * * /usr/bin/env python3 /path/to/FIM-LinPy/scripts/integrity_check.py
-  # Will run every day at midnight
-  ```
-
-# Future Additions
-- I plan to add to the script to add alerts (via email &or messaging).
-- Configuration file to make it easier to adjust settings (target directory, baseline file location etc)
-
-
-
-
+# Future Ideas/Work
+- Email alerts (smtp)
+- Schedule Vuln scans
+- More!!!
+   

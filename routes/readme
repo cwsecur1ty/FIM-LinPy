@@ -1,1 +1,1 @@
-
+Routes are used by the main flask app to perform specific functions, each has it's own usage

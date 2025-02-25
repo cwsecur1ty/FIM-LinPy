@@ -1,0 +1,8 @@
+{
+    "monitored_paths": [
+        "/var/log",
+        "/etc",
+        "/home"
+    ],
+    "alert_on_change": true
+}

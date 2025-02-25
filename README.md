@@ -69,7 +69,7 @@ PyGuard combines several functions:
 ### Vulnerability Page
 ![image](https://github.com/user-attachments/assets/6220adbb-4e01-4420-a21f-ebb7a9130683)
 ### Threat Hunting
-![image](https://github.com/user-attachments/assets/43042ccf-de74-4647-846c-38a5277ae2d7)
+![image](https://github.com/user-attachments/assets/77cfcc63-67e2-4c81-bf33-ce4a9a6a25b5)
 
 ## Structure
 ```bash

@@ -63,13 +63,59 @@ PyGuard combines several functions:
 
 # Screenshots
 ### Dashboard
-![image](https://github.com/user-attachments/assets/a273522a-d0c4-4014-b480-dd0c63b60f0c)
+![image](https://github.com/user-attachments/assets/23f412d5-44d9-4453-9192-b02ccbfa15a5)
 ### FIM
-![image](https://github.com/user-attachments/assets/2e1aa621-a590-4868-b091-bf471969d110)
+![image](https://github.com/user-attachments/assets/1b3fc82f-2984-4845-ba39-9d644983cf2e)
 ### Vulnerability Page
-![image](https://github.com/user-attachments/assets/e5e718c4-240e-4545-bc32-be3e53eb3e5d)
+![image](https://github.com/user-attachments/assets/6220adbb-4e01-4420-a21f-ebb7a9130683)
 ### Threat Hunting
-![image](https://github.com/user-attachments/assets/73078ccb-8172-482d-a909-ed1d7625b5b1)
+![image](https://github.com/user-attachments/assets/43042ccf-de74-4647-846c-38a5277ae2d7)
+
+## Structure
+```bash
+PyGuard/
+├── data/                           # Data storage directory
+│   ├── baseline_checksums.txt      # File integrity baselines
+│   ├── fim_config.json             # Configuration file
+│   └── vuln_scans.db               # SQLite database for scans
+├── pyguard.py                      # Main application file
+├── routes/                         # Route handlers
+│   ├── accounts.py                 # User account monitoring
+│   ├── config.py                   # Configuration management
+│   ├── dashboard.py                # Main dashboard
+│   ├── fim.py                      # File integrity monitoring
+│   ├── threat_hunting.py           # Threat hunting functionality
+│   └── vulnerability.py            # Vulnerability scanning
+├── scripts/                        # Backend scripts
+│   ├── auth.py                     # Authentication helpers
+│   ├── baseline_gen.sh             # Generate baseline checksums
+│   ├── config_helpers.py           # Configuration utilities
+│   ├── db_helpers.py               # Database functions
+│   ├── integrity_check.py          # File integrity verification
+│   ├── system_stats.py             # System statistics collection
+│   ├── update_baseline.sh          # Update baseline checksums
+│   ├── user_accounts.py            # User account information
+│   ├── virustotal_helper.py        # VirusTotal API integration
+│   └── vulnerability_scanner.py    # Package vulnerability scanning
+├── templates/                      # HTML templates
+│   ├── accounts/
+│   │   └── index.html              # User accounts dashboard
+│   ├── base.html                   # Base template with navigation
+│   ├── config/
+│   │   └── index.html              # Configuration page
+│   ├── dashboard/
+│   │   └── index.html              # Main dashboard
+│   ├── fim/
+│   │   └── index.html              # File integrity monitoring
+│   ├── investigation.html          # File investigation modal
+│   ├── threat_hunting/
+│   │   └── index.html              # Threat hunting interface
+│   └── vulnerability/
+│       ├── all_scans.html          # All vulnerability scans
+│       └── scan.html               # Single vulnerability scan
+└── utils/                          # Utility functions
+    └── config_handler.py           # Configuration management
+```
 
 # Future Ideas/Work
 - Email alerts (smtp)

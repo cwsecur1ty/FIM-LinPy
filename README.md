@@ -50,15 +50,16 @@ PyGuard combines several functions:
    cd PyGuard
    ```
 2. **Install Dependencies**
+   (I need to put generate a requirements.txt)
    ```bash
-   pip install -r requirements.txt
+   pip install PACKAGE-NAME
    ```
-3. **Setup & Launch**
+4. **Setup & Launch**
    (In theory the initial launch will set everything up)
    ```bash
    python3 pyguard.py
    ```
-4. **Access Dashboard**
+5. **Access Dashboard**
    Navigate to: https://127.0.0.1:11010
 
 # Screenshots

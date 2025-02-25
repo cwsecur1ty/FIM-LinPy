@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>System Configuration</h2>
+    
+    <form method="POST" action="{{ url_for('config.update_config') }}">
+        <!-- API Keys Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>API Keys</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>VirusTotal API Key</label>
+                    <input type="password" class="form-control" name="virustotal_api_key" 
+                           value="{{ config.virustotal_api_key }}" autocomplete="new-password">
+                    <div class="custom-control custom-switch mt-2">
+                        <input type="checkbox" class="custom-control-input" id="enableVT" 
+                               name="enable_virustotal" value="true" 
+                               {% if config.enable_virustotal %}checked{% endif %}>
+                        <label class="custom-control-label" for="enableVT">Enable VirusTotal Integration</label>
+                    </div>
+                </div>
+                <!-- Add more APIs here -->
+            </div>
+        </div>
+
+        <!-- General Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>General Settings</h4>
+            </div>
+            <div class="card-body">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="alertOnChange" 
+                           name="alert_on_change" value="true" 
+                           {% if config.alert_on_change %}checked{% endif %}>
+                    <label class="custom-control-label" for="alertOnChange">Alert on File Changes</label>
+                </div>
+                <!-- Add more general settings here -->
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Configuration</button>
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </form>
+</div>
+{% endblock %}

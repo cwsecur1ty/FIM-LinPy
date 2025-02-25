@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}File Integrity Monitoring{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>File Integrity Monitoring</h2>
+    <p>Below are the monitored files and their integrity status.</p>
+
+    <!-- File Integrity Results -->
+    {% if issues %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>File Path</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Group</th>
+                    <th>Last Modified</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file_path, status, owner, group, last_modified in issues %}
+                <tr>
+                    <td>{{ file_path }}</td>
+                    <td>
+                        {% if status == 'Modified' %}
+                            <span class="badge badge-warning">{{ status }}</span>
+                        {% elif status == 'Missing' %}
+                            <span class="badge badge-danger">{{ status }}</span>
+                        {% else %}
+                            <span class="badge badge-success">{{ status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ owner }}</td>
+                    <td>{{ group }}</td>
+                    <td>{{ last_modified }}</td>
+                    <td>
+                        {% if status == 'Modified' %}
+                            <a href="{{ url_for('fim.approve', file=file_path) }}" class="btn btn-success btn-sm">Approve Change</a>
+                            <button class="btn btn-danger btn-sm investigate-button" 
+                                    data-file="{{ file_path }}" 
+                                    data-toggle="modal" 
+                                    data-target="#investigationModal">
+                                Investigate
+                            </button>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-success">All monitored files are intact - no changes detected.</div>
+    {% endif %}
+
+    <!-- Investigation Modal -->
+    <div class="modal fade" id="investigationModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">File Investigation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="investigationContent">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Section -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>File Integrity Settings</h4>
+        </div>
+        <div class="card-body">
+            <h5>Monitored Directories</h5>
+            <form method="POST" action="{{ url_for('fim.update_config') }}">
+                <ul class="list-group mb-3">
+                    {% for path in monitored_paths %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ path }}
+                            <button type="submit" name="remove_path" value="{{ path }}" 
+                                    class="btn btn-danger btn-sm">Remove</button>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="form-group">
+                    <label for="new_path">Add New Directory:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="new_path" id="new_path" 
+                               placeholder="Enter directory path">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Alert Settings -->
+            <h5 class="mt-4">Alert Settings</h5>
+            <form method="POST" action="{{ url_for('fim.toggle_alert') }}">
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="alertOnChange" 
+                               name="alert_on_change" value="true" 
+                               {% if alert_on_change %}checked{% endif %}>
+                        <label class="custom-control-label" for="alertOnChange">Alert on File Changes</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-warning">Save Alert Settings</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $(".investigate-button").on("click", function() {
+        var filePath = $(this).data("file");
+        $("#investigationContent").html("<p>Loading details...</p>");
+        $.get("{{ url_for('fim.investigate') }}", { file: filePath })
+            .done(function(data) {
+                $("#investigationContent").html(data);
+            })
+            .fail(function() {
+                $("#investigationContent").html(
+                    '<div class="alert alert-danger">Failed to load investigation data.</div>'
+                );
+            });
+    });
+});
+</script>
+{% endblock %}

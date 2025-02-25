@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}User Accounts{% endblock %}
+
+{% block content %}
+    <h2>User Accounts & Privilege Monitoring</h2>
+    {% if accounts %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>UID</th>
+                    <th>GID</th>
+                    <th>Home Directory</th>
+                    <th>Shell</th>
+                    <th>Gecos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account.username }}</td>
+                    <td>{{ account.uid }}</td>
+                    <td>{{ account.gid }}</td>
+                    <td>{{ account.home }}</td>
+                    <td>{{ account.shell }}</td>
+                    <td>{{ account.gecos }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No user accounts found.</p>
+    {% endif %}
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">Back to Dashboard</a>
+{% endblock %}

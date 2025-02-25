@@ -1,0 +1,120 @@
+{# app/templates/dashboard.html #}
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h2>File Integrity Monitoring</h2>
+    <p>Below are the monitored files and their integrity status.</p>
+
+    <!-- File Integrity Results -->
+    {% if issues %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>File Path</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Group</th>
+                    <th>Last Modified</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file_path, status, owner, group, last_modified in issues %}
+                <tr>
+                    <td>{{ file_path }}</td>
+                    <td>{{ status }}</td>
+                    <td>{{ owner }}</td>
+                    <td>{{ group }}</td>
+                    <td>{{ last_modified }}</td>
+                    <td>
+                        {% if status == 'Modified' %}
+                            <a href="{{ url_for('dashboard.approve', file=file_path) }}" class="btn btn-success btn-sm">Approve Change</a>
+                            <button class="btn btn-danger btn-sm investigate-button" 
+                                    data-file="{{ file_path }}" 
+                                    data-toggle="modal" 
+                                    data-target="#investigationModal">
+                                Investigate
+                            </button>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>All monitored files are intact - no changes detected.</p>
+    {% endif %}
+
+    <!-- Investigation Modal -->
+    <div class="modal fade" id="investigationModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">File Investigation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="investigationContent">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Section -->
+    <hr>
+    <h3>File Integrity Settings</h3>
+    <p>Modify the monitored directories:</p>
+
+    <!-- List of Monitored Paths -->
+    <form method="POST" action="{{ url_for('dashboard.update_config') }}">
+        <ul class="list-group">
+            {% for path in monitored_paths %}
+                <li class="list-group-item">
+                    {{ path }}
+                    <button type="submit" name="remove_path" value="{{ path }}" class="btn btn-danger btn-sm float-right">Remove</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="form-group mt-3">
+            <label for="new_path">Add New Directory:</label>
+            <input type="text" class="form-control" name="new_path" placeholder="Enter directory path" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+
+    <!-- Toggle Alert Setting -->
+    <form method="POST" action="{{ url_for('dashboard.toggle_alert') }}">
+        <div class="form-group mt-3">
+            <label><strong>Alert on File Change:</strong></label>
+            <select name="alert_on_change" class="form-control">
+                <option value="true" {% if alert_on_change %}selected{% endif %}>Enabled</option>
+                <option value="false" {% if not alert_on_change %}selected{% endif %}>Disabled</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-warning">Save Alert Settings</button>
+    </form>
+
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary mt-3">Refresh Dashboard</a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $(".investigate-button").on("click", function () {
+            var filePath = $(this).data("file");
+            $("#investigationContent").html("<p>Loading details...</p>");
+            $.get("/investigate", { file: filePath }, function (data) {
+                $("#investigationContent").html(data);
+            }).fail(function () {
+                $("#investigationContent").html("<p class='text-danger'>Failed to load investigation data.</p>");
+            });
+        });
+    });
+</script>
+{% endblock %}

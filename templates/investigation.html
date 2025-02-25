@@ -1,0 +1,14 @@
+{# app/templates/investigation.html #}
+<div>
+    <h4>Investigation for: {{ file_path }}</h4>
+    <table class="table table-bordered">
+        <tr><th>Attribute</th><th>Value</th></tr>
+        <tr><td>Baseline Checksum</td><td>{{ baseline_checksum }}</td></tr>
+        <tr><td>Current Checksum</td><td>{{ current_checksum }}</td></tr>
+        <tr><td>File Size</td><td>{{ file_size }} bytes</td></tr>
+        <tr><td>Last Modified</td><td>{{ last_modified }}</td></tr>
+        <tr><td>Permissions</td><td>{{ file_permissions }}</td></tr>
+        <tr><td>Owner</td><td>{{ owner }}</td></tr>
+        <tr><td>Group</td><td>{{ group }}</td></tr>
+    </table>
+</div>

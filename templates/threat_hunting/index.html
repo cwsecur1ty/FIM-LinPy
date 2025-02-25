@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Hunting{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-secondary font-weight-normal">Threat Hunting</h2>
+        </div>
+    </div>
+    
+    <!-- Two column layout -->
+    <div class="row">
+        <!-- Left column -->
+        <div class="col-md-6">
+            <!-- Search Section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="text-secondary m-0">File Search</h6>
+                </div>
+                <div class="card-body">
+                    <form id="searchForm" class="mb-3">
+                        <div class="form-group">
+                            <label class="text-muted small">Search Type</label>
+                            <select class="form-control" name="search_type" id="searchType">
+                                <option value="hash">Search by Hash</option>
+                                <option value="path">Search by Path</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-muted small">Search Scope</label>
+                            <select class="form-control" name="search_scope" id="searchScope">
+                                <option value="baseline">Monitored Files (Baseline)</option>
+                                <option value="filesystem">Full Filesystem (Slow)</option>
+                            </select>
+                            <small class="form-text text-muted">Full filesystem search may take a long time and require elevated privileges.</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-muted small">Search Value</label>
+                            <input type="text" class="form-control" name="search_value" id="searchValue" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-secondary">Search</button>
+                    </form>
+                    <div id="searchResults"></div>
+                </div>
+            </div>
+
+            <!-- Quick scan section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="text-secondary m-0">Directory Scan</h6>
+                </div>
+                <div class="card-body">
+                    <form id="scanForm">
+                        <div class="form-group">
+                            <label class="text-muted small">Directory Path</label>
+                            <input type="text" class="form-control" name="directory" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-secondary">Scan Directory</button>
+                    </form>
+                    <div id="scanResults" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right column -->
+        <div class="col-md-6">
+            <!-- VirusTotal search -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="text-secondary m-0">VirusTotal Hash Check</h6>
+                </div>
+                <div class="card-body">
+                    <form id="vtSearchForm" class="mb-3">
+                        <div class="form-group">
+                            <label class="text-muted small">File Hash</label>
+                            <input type="text" class="form-control" name="hash" id="vtHashValue" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-secondary">Check VirusTotal</button>
+                    </form>
+                    <div id="vtResults"></div>
+                </div>
+            </div>
+            
+            <!-- File Metadata Section - New! -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="text-secondary m-0">File Metadata</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Select a file from search results to view detailed metadata.</p>
+                    <div id="fileMetadata">
+                        <!-- Metadata will be displayed here -->
+                        <div class="text-center py-4 text-muted">
+                            <p>No file selected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Full width for malicious hash management -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h6 class="text-secondary m-0">Add Malicious Hash</h6>
+        </div>
+        <div class="card-body">
+            <form id="maliciousHashForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted small">Hash Value</label>
+                            <input type="text" class="form-control" name="hash" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted small">Description</label>
+                            <input type="text" class="form-control" name="description" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted small">Source</label>
+                            <input type="text" class="form-control" name="source" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline-secondary">Add Malicious Hash</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle search form submission
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Search form submitted');
+        const formData = new FormData(this);
+        
+        // Show a simple loading indicator
+        document.getElementById('searchResults').innerHTML = '<div class="text-center py-3"><div class="spinner-border text-secondary" role="status"></div><p class="mt-2 small">Searching...</p></div>';
+        
+        fetch('/threat-hunting/search', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            displaySearchResults(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error performing search');
+        });
+    });
+
+    // Handle directory scan
+    document.getElementById('scanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Scan form submitted');
+        const formData = new FormData(this);
+        
+        // Simple loading indicator
+        document.getElementById('scanResults').innerHTML = '<div class="text-center py-3"><div class="spinner-border text-secondary" role="status"></div><p class="mt-2 small">Scanning...</p></div>';
+        
+        fetch('/threat-hunting/scan-directory', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            displayScanResults(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error scanning directory');
+        });
+    });
+
+    // Virus total search form
+    document.getElementById('vtSearchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const hash = document.getElementById('vtHashValue').value;
+        const resultsDiv = document.getElementById('vtResults');
+        
+        resultsDiv.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-secondary" role="status"></div><p class="mt-2 small">Checking VirusTotal...</p></div>';
+        
+        fetch('/threat-hunting/check-virustotal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `hash=${hash}`
+        })
+        .then(response => response.json())
+        .then(vtData => {
+            if (vtData.error) {
+                resultsDiv.innerHTML = `<div class="alert alert-warning">VirusTotal: ${vtData.error}</div>`;
+            } else if (!vtData.found) {
+                resultsDiv.innerHTML = `<div class="alert alert-info">VirusTotal: Hash not found in database</div>`;
+            } else {
+                let html = `<div class="alert alert-${vtData.malicious > 0 ? 'danger' : 'success'}">`;
+                html += `<h5>VirusTotal Results for: ${hash}</h5>`;
+                html += `<table class="table table-sm">
+                    <tr>
+                        <td>Malicious</td>
+                        <td><span class="badge ${vtData.malicious > 0 ? 'badge-danger' : 'badge-success'}">${vtData.malicious}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Suspicious</td>
+                        <td><span class="badge ${vtData.suspicious > 0 ? 'badge-warning' : 'badge-secondary'}">${vtData.suspicious}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Clean</td>
+                        <td><span class="badge badge-info">${vtData.undetected}</span></td>
+                    </tr>
+                    <tr>
+                        <td>Total Scans</td>
+                        <td>${vtData.total_scans}</td>
+                    </tr>
+                    <tr>
+                        <td>File Type</td>
+                        <td>${vtData.type_description}</td>
+                    </tr>
+                </table>`;
+                html += `</div>`;
+                resultsDiv.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            console.error('Error checking VirusTotal:', error);
+            resultsDiv.innerHTML = '<div class="alert alert-danger">Error checking VirusTotal</div>';
+        });
+    });
+
+    // Handle malicious hash addition
+    document.getElementById('maliciousHashForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Malicious hash form submitted');
+        const formData = new FormData(this);
+        
+        fetch('/threat-hunting/add-malicious-hash', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Hash added successfully');
+                this.reset();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding malicious hash');
+        });
+    });
+});
+
+// Show file metadata in the right panel
+function showFileMetadata(filePath) {
+    // First update the UI to show we're loading
+    const metadataPanel = document.getElementById('fileMetadata');
+    metadataPanel.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-secondary" role="status"></div><p class="mt-2 small">Loading metadata...</p></div>';
+    
+    console.log("Requesting metadata for path:", filePath);
+    
+    // Use POST to avoid URL encoding issues
+    fetch('/threat-hunting/file-metadata', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ file_path: filePath })
+    })
+    .then(response => response.json())
+    .then(metadata => {
+        if (metadata.error) {
+            metadataPanel.innerHTML = `<div class="alert alert-danger">${metadata.error}</div>`;
+            return;
+        }
+        
+        // Build a nice display of the metadata
+        let html = `
+            <div class="metadata-details">
+                <h5 class="mb-3 text-monospace text-truncate small">${filePath}</h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td class="font-weight-bold">Size</td>
+                                <td>${metadata.size_human}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Type</td>
+                                <td>${metadata.file_type || 'Unknown'}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">MIME</td>
+                                <td>${metadata.mime_type}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Owner</td>
+                                <td>${metadata.owner}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Group</td>
+                                <td>${metadata.group}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td class="font-weight-bold">Created</td>
+                                <td>${metadata.created}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Modified</td>
+                                <td>${metadata.modified}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Accessed</td>
+                                <td>${metadata.accessed}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Permissions</td>
+                                <td>${metadata.permissions}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-weight-bold">Permissions (Octal)</td>
+                                <td>${metadata.permissions_octal}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        metadataPanel.innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error fetching metadata:', error);
+        metadataPanel.innerHTML = `<div class="alert alert-danger">Error fetching metadata</div>`;
+    });
+}
+
+function displaySearchResults(data) {
+    const resultsDiv = document.getElementById('searchResults');
+    
+    if (data.error) {
+        resultsDiv.innerHTML = `<div class="alert alert-danger mt-3">Error: ${data.error}</div>`;
+        return;
+    }
+    
+    if (!data.results || data.results.length === 0) {
+        resultsDiv.innerHTML = '<div class="alert alert-success mt-3">No matches found</div>';
+        return;
+    }
+    
+    // Show count and limiting information
+    let html = '<div class="mt-3">';
+    html += `<p class="text-muted small">Found ${data.total_count} matches. ${data.limited ? `Showing first ${data.results.length}.` : ''}</p>`;
+    
+    // Create a scrollable container for results if there are many
+    html += '<div class="table-responsive" style="max-height: 400px; overflow-y: auto;">';
+    html += '<table class="table table-sm table-hover">';
+    html += '<thead class="thead-light"><tr><th>File Path</th><th>Actions</th></tr></thead><tbody>';
+    
+    // Show each result
+    data.results.forEach(result => {
+        html += `<tr>`;
+        html += `<td class="text-monospace small text-truncate" style="max-width: 300px;">${result.file_path}</td>`;
+        html += `<td>
+            <button class="btn btn-sm btn-outline-primary view-metadata" data-path="${result.file_path}">View Metadata</button>
+            <button class="btn btn-sm btn-outline-secondary copy-hash" data-hash="${result.hash}">Copy Hash</button>
+        </td>`;
+        html += `</tr>`;
+    });
+    
+    html += '</tbody></table>';
+    html += '</div>';
+    html += '</div>';
+    
+    resultsDiv.innerHTML = html;
+    
+    // Add event listeners for the buttons
+    document.querySelectorAll('.view-metadata').forEach(button => {
+        button.addEventListener('click', function() {
+            const path = this.getAttribute('data-path');
+            showFileMetadata(path);
+        });
+    });
+    
+    document.querySelectorAll('.copy-hash').forEach(button => {
+        button.addEventListener('click', function() {
+            const hash = this.getAttribute('data-hash');
+            document.getElementById('vtHashValue').value = hash;
+            // Optionally scroll to the VirusTotal section
+            document.getElementById('vtSearchForm').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+}
+
+function displayScanResults(data) {
+    const resultsDiv = document.getElementById('scanResults');
+    if (!data || data.length === 0) {
+        resultsDiv.innerHTML = '<div class="alert alert-info">No files found in directory</div>';
+        return;
+    }
+    
+    // We need to handle both array and object response formats
+    let files = Array.isArray(data) ? data : (data.results || []);
+    let fileCount = files.length;
+    
+    if (fileCount === 0) {
+        resultsDiv.innerHTML = '<div class="alert alert-info">No files found in directory</div>';
+        return;
+    }
+    
+    let html = '<div class="mt-3">';
+    html += `<p class="text-muted small">Found ${fileCount} files. Showing first ${Math.min(fileCount, 5)}.</p>`;
+    
+    // Create a table with the first few results
+    html += '<div class="table-responsive">';
+    html += '<table class="table table-sm">';
+    html += '<thead class="thead-light"><tr><th>File Path</th><th>Hash</th></tr></thead><tbody>';
+    
+    files.slice(0, 5).forEach(result => {
+        html += `<tr>`;
+        html += `<td class="text-monospace small text-truncate" style="max-width: 300px;">${result.file_path}</td>`;
+        html += `<td class="text-monospace small">${result.hash.substring(0, 8)}...</td>`;
+        html += `</tr>`;
+    });
+    
+    html += '</tbody></table>';
+    
+    if (fileCount > 5) {
+        html += `<p class="text-muted small">... and ${fileCount - 5} more files</p>`;
+    }
+    
+    html += '</div>';
+    html += '</div>';
+    
+    resultsDiv.innerHTML = html;
+}
+</script>
+{% endblock %}

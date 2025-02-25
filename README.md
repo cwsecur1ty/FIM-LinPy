@@ -1,4 +1,4 @@
-# PyGuard: Security Monitoring for Linux
+# PyGuard: Python Web App & Security Monitoring for Linux
 
 PyGuard is a security monitoring platform for Linux systems, providing FIM, vulnerability scanning, account monitoring, and threat-hunting capabilities. Built with Python and Flask - it has command-line tools and a web dashboard (main focus) to help maintain the security of Linux env's.
 
